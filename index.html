@@ -1,0 +1,1967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spring Boot Properties Terminal — Complete Reference</title>
+  <style>
+    :root {
+      --terminal-bg: #1a1a1a;
+      --terminal-surface: #2d2d2d;
+      --terminal-border: #404040;
+      --terminal-text: #e0e0e0;
+      --terminal-green: #00ff41;
+      --terminal-blue: #00b4d8;
+      --terminal-yellow: #ffbe0b;
+      --terminal-red: #ff006e;
+      --terminal-purple: #8338ec;
+      --shadow-dark: 0 8px 32px rgba(0, 0, 0, 0.4);
+      --glow: 0 0 20px rgba(0, 255, 65, 0.3);
+      --glow-blue: 0 0 20px rgba(0, 180, 216, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Fira Code', 'JetBrains Mono', 'Courier New', monospace;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
+      color: var(--terminal-text);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      animation: grid-move 20s linear infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    @keyframes grid-move {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(50px, 50px); }
+    }
+
+    header {
+      background: var(--terminal-surface);
+      border-bottom: 2px solid var(--terminal-green);
+      padding: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-dark);
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .terminal-prompt {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .prompt-symbol {
+      color: var(--terminal-green);
+      text-shadow: var(--glow);
+      animation: blink 2s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0.3; }
+    }
+
+    .terminal-title {
+      color: var(--terminal-blue);
+      font-size: 24px;
+      text-shadow: var(--glow-blue);
+    }
+
+    .nav-terminal {
+      display: flex;
+      gap: 15px;
+    }
+
+    .terminal-btn {
+      background: linear-gradient(135deg, var(--terminal-surface) 0%, #3d3d3d 100%);
+      border: 1px solid var(--terminal-border);
+      color: var(--terminal-text);
+      padding: 8px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-family: inherit;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .terminal-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .terminal-btn:hover::before {
+      left: 100%;
+    }
+
+    .terminal-btn:hover {
+      border-color: var(--terminal-green);
+      box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+      transform: translateY(-2px);
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .terminal-info {
+      background: var(--terminal-surface);
+      border: 1px solid var(--terminal-border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .terminal-info::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--terminal-green) 0%, var(--terminal-blue) 50%, var(--terminal-purple) 100%);
+    }
+
+    .info-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--terminal-green);
+      box-shadow: var(--glow);
+      animation: pulse-status 2s infinite;
+    }
+
+    @keyframes pulse-status {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .command-sections {
+      display: grid;
+      gap: 30px;
+    }
+
+    .command-section {
+      background: var(--terminal-surface);
+      border: 1px solid var(--terminal-border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .command-section:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-dark), 0 0 20px rgba(0, 255, 65, 0.1);
+      border-color: var(--terminal-green);
+    }
+
+    .section-header {
+      background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+      padding: 20px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+      border-bottom: 1px solid var(--terminal-border);
+    }
+
+    .section-header:hover {
+      background: linear-gradient(135deg, #3d3d3d 0%, #2a2a2a 100%);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .section-icon {
+      font-size: 24px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .expand-arrow {
+      font-size: 20px;
+      color: var(--terminal-green);
+      transition: transform 0.3s ease;
+    }
+
+    .section-content {
+      display: none;
+      padding: 30px;
+      animation: slideIn 0.3s ease;
+    }
+
+    .section-content.active {
+      display: block;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .command-block {
+      background: #1a1a1a;
+      border: 1px solid var(--terminal-border);
+      border-radius: 8px;
+      margin: 20px 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .command-header {
+      background: #2d2d2d;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--terminal-border);
+    }
+
+    .command-type {
+      color: var(--terminal-yellow);
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .command-code {
+      padding: 20px;
+      color: var(--terminal-text);
+      font-family: 'Fira Code', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      background: #1a1a1a;
+    }
+
+    .copy-btn {
+      background: none;
+      border: 1px solid var(--terminal-green);
+      color: var(--terminal-green);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .copy-btn:hover {
+      background: var(--terminal-green);
+      color: var(--terminal-bg);
+      box-shadow: var(--glow);
+    }
+
+    h3 {
+      margin: 12px 0 8px 0;
+      font-size: 18px;
+      color: var(--terminal-blue);
+      font-weight: 600;
+    }
+
+    h4 {
+      margin: 20px 0 8px 0;
+      font-size: 13px;
+      color: var(--terminal-yellow);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h4::before {
+      content: '▶';
+      color: var(--terminal-green);
+      font-size: 12px;
+    }
+
+    pre {
+      margin: 12px 0;
+      background: #1a1a1a;
+      border: 1px solid var(--terminal-border);
+      padding: 16px 50px 16px 16px;
+      border-radius: 8px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      position: relative;
+      font-family: 'Fira Code', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--terminal-text);
+    }
+
+    pre:hover {
+      border-color: var(--terminal-green);
+      box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+    }
+
+    .copy-button {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: none;
+      border: 1px solid var(--terminal-green);
+      color: var(--terminal-green);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 11px;
+      cursor: pointer;
+      opacity: 0;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    pre:hover .copy-button {
+      opacity: 1;
+    }
+
+    .copy-button:hover {
+      background: var(--terminal-green);
+      color: var(--terminal-bg);
+      box-shadow: var(--glow);
+    }
+
+    .copy-button:active {
+      transform: translateY(0);
+    }
+
+    .copy-button.copied {
+      background: var(--terminal-green);
+      color: var(--terminal-bg);
+    }
+
+    .copy-icon {
+      width: 12px;
+      height: 12px;
+      fill: currentColor;
+    }
+
+    code {
+      font-family: 'Fira Code', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+
+    /* Syntax highlighting */
+    .comment { color: var(--terminal-green); opacity: 0.7; }
+    .string { color: var(--terminal-yellow); }
+    .keyword { color: var(--terminal-blue); font-weight: 600; }
+    .property { color: var(--terminal-blue); }
+    .flag { color: var(--terminal-purple); }
+
+    .twocol {
+      display: grid;
+      gap: 20px;
+    }
+
+    @media(min-width: 900px) {
+      .twocol {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 255, 65, 0.1);
+      border: 1px solid rgba(0, 255, 65, 0.3);
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 12px;
+      color: var(--terminal-text);
+      margin: 0 8px 8px 0;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .tag:hover {
+      background: rgba(0, 255, 65, 0.2);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .tag::before {
+      content: '▪';
+      color: var(--terminal-green);
+      font-size: 10px;
+    }
+
+    .info-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .info-list li {
+      padding: 8px 0;
+      padding-left: 25px;
+      position: relative;
+    }
+
+    .info-list li::before {
+      content: '▶';
+      position: absolute;
+      left: 0;
+      color: var(--terminal-green);
+      font-size: 12px;
+    }
+
+    .info-list li strong {
+      color: var(--terminal-blue);
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--terminal-bg);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--terminal-border);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--terminal-green);
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .terminal-title {
+        font-size: 20px;
+      }
+      
+      .nav-terminal {
+        justify-content: center;
+      }
+      
+      main {
+        padding: 20px 15px;
+      }
+      
+      .section-content {
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .terminal-title {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <div class="terminal-prompt">
+        <span class="prompt-symbol">$</span>
+        <span class="terminal-title">Spring Boot Properties </span>
+      </div>
+      <nav class="nav-terminal">
+        <a href="docker.html" class="terminal-btn">🐳 Docker Guide</a>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <div class="terminal-info">
+      <div class="info-header">
+        <div class="status-indicator"></div>
+        <span style="color: var(--terminal-green); font-weight: 600;">CONFIG SYSTEM READY</span>
+      </div>
+      <p>
+        <strong style="color: var(--terminal-blue);">Spring Boot Configuration Terminal</strong> — Your complete reference for microservices configuration. 
+        Separate configs for <strong style="color: var(--terminal-yellow);">main services</strong> (Eureka/Config/Gateway) and 
+        <strong style="color: var(--terminal-yellow);">microservices</strong> that connect to them. 
+        <span style="color: var(--terminal-green);">All systems operational.</span>
+      </p>
+    </div>
+
+    <div class="command-sections">
+
+      <!-- BASIC PROPERTIES -->
+      <section class="command-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <div class="section-title">
+            <span class="section-icon">📌</span>
+            <span>Basic Properties (service name & port)</span>
+          </div>
+          <span class="expand-arrow">▼</span>
+        </div>
+        <div class="section-content">
+          <h4>📝 What & Why</h4>
+          <p>
+            <b>What:</b> These are the most fundamental settings every Spring Boot microservice needs.<br/>
+            <b>Why:</b> Each microservice must have a <b>unique name</b> (for service discovery) and run on a <b>different port</b> (to avoid conflicts when running multiple services on the same machine).
+          </p>
+          
+          <div class="twocol">
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.properties</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code"># Example per service
+spring.application.name=AI-SERVICE
+server.port=8092
+
+spring.application.name=ACTIVITY-SERVICE
+server.port=8091
+
+spring.application.name=USER-SERVICE
+server.port=8090
+
+spring.application.name=api-gateway
+server.port=9999
+
+spring.application.name=config-server
+server.port=8888
+
+spring.application.name=eureka-server
+server.port=8761</div>
+            </div>
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.yml</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code">spring:
+  application:
+    name: ACTIVITY-SERVICE
+server:
+  port: 8091</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+  <!-- CONFIG SERVER -->
+<section class="command-section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div class="section-title">
+      <span class="section-icon">🛠️</span>
+      <span>Config Server (centralized configs)</span>
+    </div>
+    <span class="expand-arrow">▼</span>
+  </div>
+  <div class="section-content">
+    <span class="tag">For Config Server</span>
+    <div class="twocol">
+      <div class="command-block">
+        <div class="command-header">
+          <div class="command-type">📄 application.properties (Native)</div>
+          <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+        </div>
+        <div class="command-code">spring.application.name=config-server
+server.port=8888
+spring.profiles.active=native
+spring.cloud.config.server.native.search-locations.classpath=/config</div>
+      </div>
+      <div class="command-block">
+        <div class="command-header">
+          <div class="command-type">📄 application.yml (Native)</div>
+          <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+        </div>
+        <div class="command-code">spring:
+  application:
+    name: config-server
+  profiles:
+    active: native
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: classpath:/config
+server:
+  port: 8888</div>
+      </div>
+    </div>
+    <p><i>👉 Here <code>/config</code> is the folder inside resources containing all microservice configs.</i></p>
+
+    <div class="twocol">
+      <div class="command-block">
+        <div class="command-header">
+          <div class="command-type">📄 application.properties (GitHub)</div>
+          <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+        </div>
+        <div class="command-code">spring.application.name=config-server
+server.port=8888
+spring.profiles.active=git
+spring.cloud.config.server.git.uri=https://github.com/your-username/your-config-repo
+spring.cloud.config.server.git.clone-on-start=true</div>
+      </div>
+      <div class="command-block">
+        <div class="command-header">
+          <div class="command-type">📄 application.yml (GitHub)</div>
+          <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+        </div>
+        <div class="command-code">spring:
+  application:
+    name: config-server
+  profiles:
+    active: git
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/your-username/your-config-repo
+          clone-on-start: true
+server:
+  port: 8888</div>
+      </div>
+    </div>
+    <p><i>👉 Put all microservice config files inside your GitHub repo.</i></p>
+
+    <span class="tag">For Other Microservices</span>
+    <div class="twocol">
+      <div class="command-block">
+        <div class="command-header">
+          <div class="command-type">📄 application.properties</div>
+          <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+        </div>
+        <div class="command-code">spring.config.import=optional:configserver:http://localhost:8888</div>
+      </div>
+      <div class="command-block">
+        <div class="command-header">
+          <div class="command-type">📄 application.yml</div>
+          <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+        </div>
+        <div class="command-code">spring:
+  config:
+    import: optional:configserver:http://localhost:8888</div>
+      </div>
+    </div>
+
+    <h4>📦 Dependencies</h4>
+    <div class="command-block">
+      <div class="command-header">
+        <div class="command-type">📦 Maven Dependencies</div>
+        <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+      </div>
+      <div class="command-code">&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-cloud-config-server&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-cloud-starter-config&lt;/artifactId&gt;
+&lt;/dependency&gt;</div>
+    </div>
+  </div>
+</section>
+
+      <!-- EUREKA -->
+      <section class="command-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <div class="section-title">
+            <span class="section-icon">🛰️</span>
+            <span>Eureka (service discovery)</span>
+          </div>
+          <span class="expand-arrow">▼</span>
+        </div>
+        <div class="section-content">
+          <h4>📝 What & Why</h4>
+          <p>
+            <b>What:</b> Eureka is Netflix's service discovery server that acts like a "phone book" for microservices.<br/>
+            <b>Why:</b> Instead of hardcoding IP addresses, services register themselves with Eureka. Other services can then find them dynamically. This makes the system more flexible and resilient.
+          </p>
+          
+          <span class="tag">For Eureka Server</span>
+          <div class="twocol">
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.properties</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code">spring.application.name=eureka-server
+server.port=8761
+eureka.client.register-with-eureka=false
+eureka.client.fetch-registry=false</div>
+            </div>
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.yml</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code">spring:
+  application:
+    name: eureka-server
+server:
+  port: 8761
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false</div>
+            </div>
+          </div>
+
+          <span class="tag">For Other Microservices (Eureka clients)</span>
+          <div class="twocol">
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.properties</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code">eureka.client.service-url.defaultZone=http://localhost:8761/eureka/
+eureka.instance.hostname=localhost
+eureka.instance.prefer-ip-address=true</div>
+            </div>
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.yml</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code">eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    hostname: localhost
+    prefer-ip-address: true</div>
+            </div>
+          </div>
+
+          <h4>📦 Dependencies</h4>
+          <div class="command-block">
+            <div class="command-header">
+              <div class="command-type">📦 Maven Dependencies</div>
+              <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+            </div>
+            <div class="command-code">&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-server&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
+&lt;/dependency&gt;</div>
+          </div>
+        </div>
+      </section>
+
+<!-- API GATEWAY -->
+<section class="command-section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div class="section-title">
+      <span class="section-icon">🚪</span>
+      <span>API Gateway (routes)</span>
+    </div>
+    <span class="expand-arrow">▼</span>
+  </div>
+  <div class="section-content">
+    <h4>📝 What & Why</h4>
+    <p>
+      <b>What:</b> API Gateway acts as a single entry point for all client requests, routing them to appropriate microservices.<br/>
+      <b>Why:</b> Simplifies client integration, provides centralized security, load balancing, and request/response transformation. Clients only need to know one URL.
+    </p>
+
+    <div class="twocol">
+      <div class="command-block">
+        <div class="command-header">
+          <div class="command-type">📄 application.properties</div>
+          <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+        </div>
+        <div class="command-code">spring.application.name=api-gateway
+server.port=9999</div>
+      </div>
+      <div class="command-block">
+        <div class="command-header">
+          <div class="command-type">📄 application.yml</div>
+          <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+        </div>
+        <div class="command-code">spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: ACTIVITY-SERVICE
+          uri: lb://ACTIVITY-SERVICE
+          predicates:
+            - Path=/api/activity/**
+        - id: AI-SERVICE
+          uri: lb://AI-SERVICE
+          predicates:
+            - Path=/api/recommendation/**
+        - id: USER-SERVICE
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/fitness-app/**</div>
+      </div>
+    </div>
+
+    <h4>📦 Dependencies</h4>
+    <div class="command-block">
+      <div class="command-header">
+        <div class="command-type">📦 Maven Dependencies</div>
+        <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+      </div>
+      <div class="command-code">&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-cloud-starter-gateway&lt;/artifactId&gt;
+&lt;/dependency&gt;</div>
+    </div>
+
+    <h4>� Route Configuration Explained</h4>
+    <p>Each <b>route</b> in the API Gateway tells it how to forward incoming client requests:</p>
+    <ul class="info-list">
+      <li><strong>id:</strong> A label for the route (helps identify the microservice)</li>
+      <li><strong>uri:</strong> Where to forward the request. The <code>lb://</code> prefix means it will use <b>load balancing</b> and look up the service in <b>Eureka</b> by that exact name</li>
+      <li><strong>predicates:</strong> Define <i>when</i> this route applies. For example, <code>Path=/api/activity/**</code> means any request starting with that path goes to <code>ACTIVITY-SERVICE</code></li>
+    </ul>
+
+    <h4>🔗 Flow Diagram</h4>
+    <div class="command-block">
+      <div class="command-header">
+        <div class="command-type">🔄 Request Flow</div>
+        <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+      </div>
+      <div class="command-code">Client → API Gateway → Eureka Discovery → Target Microservice
+       (/api/activity/** → ACTIVITY-SERVICE)
+       (/api/recommendation/** → AI-SERVICE)
+       (/api/fitness-app/** → USER-SERVICE)</div>
+    </div>
+  </div>
+</section>
+
+
+      <!-- SECURITY / JWT -->
+      <section class="command-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <div class="section-title">
+            <span class="section-icon">🔐</span>
+            <span>Security — JWT (Resource Server)</span>
+          </div>
+          <span class="expand-arrow">▼</span>
+        </div>
+        <div class="section-content">
+          <h4>📝 What & Why</h4>
+          <p>
+            <b>What:</b> JWT (JSON Web Token) security configuration for OAuth2 Resource Server integration.<br/>
+            <b>Why:</b> Protects your microservices by validating JWT tokens. Only requests with valid tokens can access protected endpoints. The JWK-SET-URI tells Spring where to get the public keys to verify token signatures.
+          </p>
+          
+          <div class="twocol">
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.yml</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code">spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8999/realms/Fitness-Oauth/protocol/openid-connect/certs</div>
+            </div>
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.properties</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code">spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost:8999/realms/Fitness-Oauth/protocol/openid-connect/certs</div>
+            </div>
+          </div>
+
+          <h4>📦 Dependencies</h4>
+          <div class="command-block">
+            <div class="command-header">
+              <div class="command-type">📦 Maven Dependencies</div>
+              <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+            </div>
+            <div class="command-code">&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-boot-starter-oauth2-resource-server&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-boot-starter-security&lt;/artifactId&gt;
+&lt;/dependency&gt;</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RABBITMQ -->
+      <section class="command-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <div class="section-title">
+            <span class="section-icon">🐇</span>
+            <span>RabbitMQ (connection + exchange/queue/routing)</span>
+          </div>
+          <span class="expand-arrow">▼</span>
+        </div>
+        <div class="section-content">
+          <h4>📝 What & Why</h4>
+          <p>
+            <b>What:</b> RabbitMQ is a message broker that enables asynchronous communication between microservices.<br/>
+            <b>Why:</b> Instead of direct API calls, services can send messages to queues. This makes the system more resilient - if a service is down, messages wait in the queue. Perfect for event-driven architecture.
+          </p>
+          
+          <span class="tag">Spring connection</span>
+          <div class="twocol">
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.properties</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code">spring.rabbitmq.host=localhost
+spring.rabbitmq.port=5672
+spring.rabbitmq.username=guest
+spring.rabbitmq.password=guest</div>
+            </div>
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.yml</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code">spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest</div>
+            </div>
+          </div>
+
+          <span class="tag">Custom exchange/queue/routing keys</span>
+          <div class="twocol">
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.properties</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code">rabbitmq.exchange.name=fitness.exchange
+rabbitmq.queue.name=activity.queue
+rabbitmq.routing.key=activity.tracking</div>
+            </div>
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.yml</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code">rabbitmq:
+  exchange:
+    name: fitness.exchange
+  queue:
+    name: activity.queue
+  routing:
+    key: activity.tracking</div>
+            </div>
+          </div>
+
+          <h4>💡 How it works</h4>
+          <ul class="info-list">
+            <li><strong>Exchange:</strong> Routes messages to queues based on routing keys</li>
+            <li><strong>Queue:</strong> Stores messages until consumers process them</li>
+            <li><strong>Routing Key:</strong> Determines which queue receives the message</li>
+          </ul>
+
+          <h4>📦 Dependencies</h4>
+          <div class="command-block">
+            <div class="command-header">
+              <div class="command-type">📦 Maven Dependencies</div>
+              <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+            </div>
+            <div class="command-code">&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-boot-starter-amqp&lt;/artifactId&gt;
+&lt;/dependency&gt;</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DATABASES -->
+      <section class="command-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <div class="section-title">
+            <span class="section-icon">🗃️</span>
+            <span>Databases (MongoDB & PostgreSQL)</span>
+          </div>
+          <span class="expand-arrow">▼</span>
+        </div>
+        <div class="section-content">
+          <h4>📝 What & Why</h4>
+          <p>
+            <b>What:</b> Database connectivity configurations for different types of data storage.<br/>
+            <b>Why:</b> Different microservices often need different database types. <b>MongoDB</b> (NoSQL) is great for flexible, document-based data. <b>PostgreSQL</b> (SQL) is perfect for structured, relational data with ACID transactions.
+          </p>
+          
+          <span class="tag">MongoDB</span>
+          <div class="twocol">
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.properties</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code">spring.data.mongodb.uri=mongodb://localhost:27017/fitness_app</div>
+            </div>
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.yml</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code">spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/fitness_app</div>
+            </div>
+          </div>
+
+          <h4>📦 MongoDB Dependencies</h4>
+          <div class="command-block">
+            <div class="command-header">
+              <div class="command-type">📦 Maven Dependencies</div>
+              <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+            </div>
+            <div class="command-code">&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-boot-starter-data-mongodb&lt;/artifactId&gt;
+&lt;/dependency&gt;</div>
+          </div>
+
+          <span class="tag">PostgreSQL (USER-SERVICE)</span>
+          <div class="twocol">
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.properties</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code">spring.datasource.url=jdbc:postgresql://localhost:5432/fitness-app
+spring.datasource.username=postgres
+spring.datasource.password=root
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true</div>
+            </div>
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.yml</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code">spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/fitness-app
+    username: postgres
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true</div>
+            </div>
+          </div>
+
+          <h4>💡 Key Settings Explained</h4>
+          <ul>
+            <li><b>ddl-auto=update:</b> Automatically updates database schema based on entity changes</li>
+            <li><b>show-sql=true:</b> Logs all SQL queries for debugging</li>
+          </ul>
+
+          <span class="tag">MySQL</span>
+          <div class="twocol">
+            <div>
+              <h4>application.properties</h4>
+              <pre><code>spring.datasource.url=jdbc:mysql://localhost:3306/fitness_app
+spring.datasource.username=root
+spring.datasource.password=password
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
+spring.jpa.show-sql=true</code></pre>
+            </div>
+            <div>
+              <h4>application.yml</h4>
+              <pre><code>spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/fitness_app
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    show-sql: true</code></pre>
+            </div>
+          </div>
+
+          <h4>� Key Settings Explained</h4>
+          <ul>
+            <li><b>ddl-auto=update:</b> Automatically updates database schema based on entity changes</li>
+            <li><b>show-sql=true:</b> Logs all SQL queries for debugging</li>
+            <li><b>MySQL8Dialect:</b> Optimizes SQL generation for MySQL 8.x features</li>
+          </ul>
+
+          <h4>�📦 Dependencies</h4>
+          <pre><code>&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+&lt;!-- PostgreSQL --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;org.postgresql&lt;/groupId&gt;
+  &lt;artifactId&gt;postgresql&lt;/artifactId&gt;
+  &lt;scope&gt;runtime&lt;/scope&gt;
+&lt;/dependency&gt;
+
+&lt;!-- MySQL --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;mysql&lt;/groupId&gt;
+  &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+  &lt;scope&gt;runtime&lt;/scope&gt;
+&lt;/dependency&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- GEMINI -->
+      <section class="command-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <div class="section-title">
+            <span class="section-icon">🤖</span>
+            <span>Gemini (AI-SERVICE)</span>
+          </div>
+          <span class="expand-arrow">▼</span>
+        </div>
+        <div class="section-content">
+          <h4>📝 What & Why</h4>
+          <p>
+            <b>What:</b> Configuration for integrating Google's Gemini AI API into your microservice.<br/>
+            <b>Why:</b> Enables AI-powered features like generating fitness recommendations, analyzing workout patterns, or providing intelligent insights. The AI-SERVICE can make HTTP requests to Gemini using these configurations.
+          </p>
+          
+          <div class="twocol">
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.properties</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code">gemini.api.url=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent
+gemini.api.key=&lt;YOUR_API_KEY&gt;</div>
+            </div>
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.yml</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code">gemini:
+  api:
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent
+    # ⚠️ Never expose your API key in public code!
+    key: &lt;YOUR_API_KEY&gt;</div>
+            </div>
+          </div>
+
+          <h4>🔐 Security Note</h4>
+          <p>
+            Always store API keys as <b>environment variables</b> or use Spring Cloud Config for secure management. Never commit real API keys to version control!
+          </p>
+        </div>
+      </section>
+
+      <!-- ACTUATOR -->
+      <section class="command-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <div class="section-title">
+            <span class="section-icon">📊</span>
+            <span>Actuator (monitoring & health checks)</span>
+          </div>
+          <span class="expand-arrow">▼</span>
+        </div>
+        <div class="section-content">
+          <h4>📝 What & Why</h4>
+          <p>
+            <b>What:</b> Spring Boot Actuator provides production-ready monitoring and management endpoints.<br/>
+            <b>Why:</b> Essential for monitoring microservice health, metrics, environment info, and application status. Critical for DevOps and troubleshooting in production.
+          </p>
+          
+          <div class="twocol">
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.properties</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code"># Enable all actuator endpoints
+management.endpoints.web.exposure.include=*
+management.endpoint.health.show-details=always
+management.endpoints.web.base-path=/actuator
+
+# Custom info endpoint
+info.app.name=@project.name@
+info.app.version=@project.version@
+info.app.description=Fitness Tracker Microservice</div>
+            </div>
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.yml</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code">management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+
+info:
+  app:
+    name: "@project.name@"
+    version: "@project.version@"
+    description: "Fitness Tracker Microservice"</div>
+            </div>
+          </div>
+
+          <h4>🔗 Common Endpoints</h4>
+          <ul class="info-list">
+            <li><strong>/actuator/health</strong> - Application health status</li>
+            <li><strong>/actuator/info</strong> - Application information</li>
+            <li><strong>/actuator/metrics</strong> - Application metrics</li>
+            <li><strong>/actuator/env</strong> - Environment properties</li>
+          </ul>
+
+          <h4>📦 Dependencies</h4>
+          <div class="command-block">
+            <div class="command-header">
+              <div class="command-type">📦 Maven Dependencies</div>
+              <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+            </div>
+            <div class="command-code">&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+&lt;/dependency&gt;</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LOGGING -->
+      <section class="command-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <div class="section-title">
+            <span class="section-icon">📝</span>
+            <span>Logging (levels & patterns)</span>
+          </div>
+          <span class="expand-arrow">▼</span>
+        </div>
+        <div class="section-content">
+          <h4>📝 What & Why</h4>
+          <p>
+            <b>What:</b> Configures logging levels, patterns, and output for different packages and environments.<br/>
+            <b>Why:</b> Proper logging is crucial for debugging, monitoring, and troubleshooting microservices. Different log levels help control verbosity in development vs production.
+          </p>
+          
+          <div class="twocol">
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.properties</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code"># Root logging level
+logging.level.root=INFO
+
+# Package-specific levels
+logging.level.com.fitness=DEBUG
+logging.level.org.springframework.security=DEBUG
+logging.level.org.hibernate.SQL=DEBUG
+
+# Log file configuration
+logging.file.name=logs/fitness-app.log
+logging.pattern.console=%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</div>
+            </div>
+            <div class="command-block">
+              <div class="command-header">
+                <div class="command-type">📄 application.yml</div>
+                <button class="copy-btn" onclick="copyCommand(this)">COPY</button>
+              </div>
+              <div class="command-code">logging:
+  level:
+    root: INFO
+    com.fitness: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+  file:
+    name: logs/fitness-app.log
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"</div>
+            </div>
+          </div>
+
+          <h4>💡 Log Levels Explained</h4>
+          <ul class="info-list">
+            <li><strong>ERROR:</strong> Error events that might still allow the application to continue</li>
+            <li><strong>WARN:</strong> Potentially harmful situations</li>
+            <li><strong>INFO:</strong> Informational messages highlighting application progress</li>
+            <li><strong>DEBUG:</strong> Detailed information for debugging purposes</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- CACHING -->
+      <section class="command-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <div class="section-title">
+            <span class="section-icon">⚡</span>
+            <span>Caching (Redis/In-Memory)</span>
+          </div>
+          <span class="expand-arrow">▼</span>
+        </div>
+        <div class="section-content">
+          <h4>📝 What & Why</h4>
+          <p>
+            <b>What:</b> Caching configuration to store frequently accessed data in memory or Redis.<br/>
+            <b>Why:</b> Dramatically improves performance by avoiding repeated database queries or API calls. Essential for scalable microservices handling high traffic.
+          </p>
+          
+          <span class="tag">Redis Cache</span>
+          <div class="twocol">
+            <div>
+              <h4>application.properties</h4>
+              <pre><code>spring.cache.type=redis
+spring.data.redis.host=localhost
+spring.data.redis.port=6379
+spring.data.redis.timeout=2000ms
+spring.cache.redis.time-to-live=600000</code></pre>
+            </div>
+            <div>
+              <h4>application.yml</h4>
+              <pre><code>spring:
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000  # 10 minutes
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms</code></pre>
+            </div>
+          </div>
+
+          <span class="tag">Simple In-Memory Cache</span>
+          <div class="twocol">
+            <div>
+              <h4>application.properties</h4>
+              <pre><code>spring.cache.type=simple
+spring.cache.cache-names=userCache,activityCache,recommendationCache</code></pre>
+            </div>
+            <div>
+              <h4>application.yml</h4>
+              <pre><code>spring:
+  cache:
+    type: simple
+    cache-names:
+      - userCache
+      - activityCache
+      - recommendationCache</code></pre>
+            </div>
+          </div>
+
+          <h4>📦 Dependencies</h4>
+          <pre><code>&lt;!-- For Redis --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-boot-starter-data-redis&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+&lt;!-- For Caching Support --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-boot-starter-cache&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- CORS -->
+      <section class="command-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <div class="section-title">
+            <span class="section-icon">🌐</span>
+            <span>CORS (cross-origin requests)</span>
+          </div>
+          <span class="expand-arrow">▼</span>
+        </div>
+        <div class="section-content">
+          <h4>📝 What & Why</h4>
+          <p>
+            <b>What:</b> Cross-Origin Resource Sharing configuration for web browsers.<br/>
+            <b>Why:</b> Allows your frontend (running on different domain/port) to access your microservices. Essential when your React/Vue/Angular app needs to call your Spring Boot APIs.
+          </p>
+          
+          <div class="twocol">
+            <div>
+              <h4>application.properties</h4>
+              <pre><code># Allow specific origins
+spring.web.cors.allowed-origins=http://localhost:3000,http://localhost:5173
+spring.web.cors.allowed-methods=GET,POST,PUT,DELETE,OPTIONS
+spring.web.cors.allowed-headers=*
+spring.web.cors.allow-credentials=true</code></pre>
+            </div>
+            <div>
+              <h4>application.yml</h4>
+              <pre><code>spring:
+  web:
+    cors:
+      allowed-origins:
+        - http://localhost:3000  # React default
+        - http://localhost:5173  # Vite default
+      allowed-methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+      allowed-headers: "*"
+      allow-credentials: true</code></pre>
+            </div>
+          </div>
+
+          <h4>⚠️ Security Warning</h4>
+          <p>
+            In production, never use <code>allowed-origins: "*"</code> with <code>allow-credentials: true</code>. Always specify exact domains for security.
+          </p>
+        </div>
+      </section>
+
+      <!-- PERFORMANCE -->
+      <section class="command-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <div class="section-title">
+            <span class="section-icon">🚀</span>
+            <span>Performance & Threading</span>
+          </div>
+          <span class="expand-arrow">▼</span>
+        </div>
+        <div class="section-content">
+          <h4>📝 What & Why</h4>
+          <p>
+            <b>What:</b> Configuration for optimizing application performance, threading, and resource usage.<br/>
+            <b>Why:</b> Fine-tune your microservice to handle more concurrent requests and optimize resource utilization. Critical for production environments with high load.
+          </p>
+          
+          <div class="twocol">
+            <div>
+              <h4>application.properties</h4>
+              <pre><code># Server threading
+server.tomcat.threads.max=200
+server.tomcat.threads.min-spare=10
+server.tomcat.max-connections=8192
+server.tomcat.accept-count=100
+
+# Connection pool (HikariCP)
+spring.datasource.hikari.maximum-pool-size=20
+spring.datasource.hikari.minimum-idle=5
+spring.datasource.hikari.connection-timeout=20000</code></pre>
+            </div>
+            <div>
+              <h4>application.yml</h4>
+              <pre><code>server:
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 10
+    max-connections: 8192
+    accept-count: 100
+
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 20000</code></pre>
+            </div>
+          </div>
+
+          <h4>💡 Performance Tips</h4>
+          <ul>
+            <li><b>max-connections:</b> Maximum concurrent connections Tomcat will accept</li>
+            <li><b>threads.max:</b> Maximum worker threads for processing requests</li>
+            <li><b>hikari.maximum-pool-size:</b> Maximum database connections in pool</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- PROFILES -->
+      <section class="command-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <div class="section-title">
+            <span class="section-icon">🎯</span>
+            <span>Profiles (dev/staging/prod)</span>
+          </div>
+          <span class="expand-arrow">▼</span>
+        </div>
+        <div class="section-content">
+          <h4>📝 What & Why</h4>
+          <p>
+            <b>What:</b> Environment-specific configurations using Spring profiles.<br/>
+            <b>Why:</b> Different settings for development, testing, and production. Allows you to use different databases, log levels, or external services per environment without code changes.
+          </p>
+          
+          <span class="tag">Main application.properties</span>
+          <div class="twocol">
+            <div>
+              <h4>application.properties</h4>
+              <pre><code># Default profile
+spring.profiles.active=dev
+
+# Common settings for all profiles
+spring.application.name=FITNESS-SERVICE</code></pre>
+            </div>
+            <div>
+              <h4>application.yml</h4>
+              <pre><code>spring:
+  profiles:
+    active: dev
+  application:
+    name: FITNESS-SERVICE</code></pre>
+            </div>
+          </div>
+
+          <span class="tag">Environment-specific files</span>
+          <div class="twocol">
+            <div>
+              <h4>application-dev.properties</h4>
+              <pre><code># Development settings
+server.port=8080
+logging.level.com.fitness=DEBUG
+spring.datasource.url=jdbc:h2:mem:devdb</code></pre>
+              
+              <h4>application-prod.properties</h4>
+              <pre><code># Production settings
+server.port=8080
+logging.level.root=WARN
+spring.datasource.url=jdbc:postgresql://prod-server:5432/fitness</code></pre>
+            </div>
+            <div>
+              <h4>application-dev.yml</h4>
+              <pre><code>server:
+  port: 8080
+logging:
+  level:
+    com.fitness: DEBUG
+spring:
+  datasource:
+    url: jdbc:h2:mem:devdb</code></pre>
+            </div>
+          </div>
+
+          <h4>🎮 Activating Profiles</h4>
+          <pre><code># Via command line
+java -jar app.jar --spring.profiles.active=prod
+
+# Via environment variable
+export SPRING_PROFILES_ACTIVE=prod
+
+# Multiple profiles
+java -jar app.jar --spring.profiles.active=prod,monitoring</code></pre>
+        </div>
+      </section>
+
+      <!-- RESILIENCE4J -->
+      <section class="command-section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <div class="section-title">
+            <span class="section-icon">🛡️</span>
+            <span>Resilience4j (Circuit Breaker, Rate Limiter, Retry)</span>
+          </div>
+          <span class="expand-arrow">▼</span>
+        </div>
+        <div class="section-content">
+          <h4>📝 What & Why</h4>
+          <p>
+            <b>What:</b> Resilience4j provides fault tolerance patterns for microservices: Circuit Breaker, Rate Limiter, Retry, Bulkhead, and Time Limiter.<br/>
+            <b>Why:</b> Prevents cascading failures, handles service outages gracefully, protects against overload, and improves system stability. Essential for production microservices.
+          </p>
+          
+          <span class="tag">Circuit Breaker Configuration</span>
+          <div class="twocol">
+            <div>
+              <h4>application.properties</h4>
+              <pre><code># Circuit Breaker for external API calls
+resilience4j.circuitbreaker.instances.gemini-api.failure-rate-threshold=50
+resilience4j.circuitbreaker.instances.gemini-api.wait-duration-in-open-state=30s
+resilience4j.circuitbreaker.instances.gemini-api.sliding-window-size=10
+resilience4j.circuitbreaker.instances.gemini-api.minimum-number-of-calls=5
+
+# Circuit Breaker for database calls
+resilience4j.circuitbreaker.instances.database.failure-rate-threshold=60
+resilience4j.circuitbreaker.instances.database.wait-duration-in-open-state=10s</code></pre>
+            </div>
+            <div>
+              <h4>application.yml</h4>
+              <pre><code>resilience4j:
+  circuitbreaker:
+    instances:
+      gemini-api:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+      database:
+        failure-rate-threshold: 60
+        wait-duration-in-open-state: 10s</code></pre>
+            </div>
+          </div>
+
+          <span class="tag">Rate Limiter Configuration</span>
+          <div class="twocol">
+            <div>
+              <h4>application.properties</h4>
+              <pre><code># Rate limiter for API endpoints
+resilience4j.ratelimiter.instances.api-rate-limiter.limit-for-period=100
+resilience4j.ratelimiter.instances.api-rate-limiter.limit-refresh-period=1s
+resilience4j.ratelimiter.instances.api-rate-limiter.timeout-duration=0.5s
+
+# Rate limiter for external service calls
+resilience4j.ratelimiter.instances.gemini-calls.limit-for-period=10
+resilience4j.ratelimiter.instances.gemini-calls.limit-refresh-period=1m</code></pre>
+            </div>
+            <div>
+              <h4>application.yml</h4>
+              <pre><code>resilience4j:
+  ratelimiter:
+    instances:
+      api-rate-limiter:
+        limit-for-period: 100
+        limit-refresh-period: 1s
+        timeout-duration: 0.5s
+      gemini-calls:
+        limit-for-period: 10
+        limit-refresh-period: 1m</code></pre>
+            </div>
+          </div>
+
+          <span class="tag">Retry Configuration</span>
+          <div class="twocol">
+            <div>
+              <h4>application.properties</h4>
+              <pre><code># Retry for external API calls
+resilience4j.retry.instances.gemini-api.max-attempts=3
+resilience4j.retry.instances.gemini-api.wait-duration=1s
+resilience4j.retry.instances.gemini-api.retry-exceptions=java.net.ConnectException,java.io.IOException
+
+# Retry for database operations
+resilience4j.retry.instances.database.max-attempts=2
+resilience4j.retry.instances.database.wait-duration=0.5s</code></pre>
+            </div>
+            <div>
+              <h4>application.yml</h4>
+              <pre><code>resilience4j:
+  retry:
+    instances:
+      gemini-api:
+        max-attempts: 3
+        wait-duration: 1s
+        retry-exceptions:
+          - java.net.ConnectException
+          - java.io.IOException
+      database:
+        max-attempts: 2
+        wait-duration: 0.5s</code></pre>
+            </div>
+          </div>
+
+          <span class="tag">Bulkhead & Time Limiter</span>
+          <div class="twocol">
+            <div>
+              <h4>application.properties</h4>
+              <pre><code># Bulkhead for isolating critical operations
+resilience4j.bulkhead.instances.database-operations.max-concurrent-calls=20
+resilience4j.bulkhead.instances.external-api.max-concurrent-calls=5
+
+# Time limiter for long-running operations
+resilience4j.timelimiter.instances.ai-processing.timeout-duration=30s
+resilience4j.timelimiter.instances.ai-processing.cancel-running-future=true</code></pre>
+            </div>
+            <div>
+              <h4>application.yml</h4>
+              <pre><code>resilience4j:
+  bulkhead:
+    instances:
+      database-operations:
+        max-concurrent-calls: 20
+      external-api:
+        max-concurrent-calls: 5
+  timelimiter:
+    instances:
+      ai-processing:
+        timeout-duration: 30s
+        cancel-running-future: true</code></pre>
+            </div>
+          </div>
+
+          <h4>💡 Pattern Explanations</h4>
+          <ul>
+            <li><b>Circuit Breaker:</b> Stops calling failing services, returns fallback response</li>
+            <li><b>Rate Limiter:</b> Controls request rate to prevent overload</li>
+            <li><b>Retry:</b> Automatically retries failed operations with backoff</li>
+            <li><b>Bulkhead:</b> Isolates resources to prevent cascade failures</li>
+            <li><b>Time Limiter:</b> Sets timeout for long-running operations</li>
+          </ul>
+
+          <h4>🔄 Java Implementation Example</h4>
+          <pre><code>@Component
+public class GeminiService {
+    
+    @CircuitBreaker(name = "gemini-api", fallbackMethod = "fallbackRecommendation")
+    @RateLimiter(name = "gemini-calls")
+    @Retry(name = "gemini-api")
+    public String getRecommendation(String userInput) {
+        // Call Gemini API
+        return geminiApiClient.generateRecommendation(userInput);
+    }
+    
+    // Fallback method
+    public String fallbackRecommendation(String userInput, Exception ex) {
+        return "Sorry, AI recommendations are temporarily unavailable. " +
+               "Please try basic workout routines.";
+    }
+}</code></pre>
+
+          <h4>📦 Dependencies</h4>
+          <pre><code>&lt;dependency&gt;
+  &lt;groupId&gt;io.github.resilience4j&lt;/groupId&gt;
+  &lt;artifactId&gt;resilience4j-spring-boot2&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-boot-starter-aop&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+
+          <h4>📊 Monitoring Endpoints</h4>
+          <p>Resilience4j integrates with Actuator for monitoring:</p>
+          <ul>
+            <li><b>/actuator/circuitbreakers</b> - Circuit breaker states</li>
+            <li><b>/actuator/ratelimiters</b> - Rate limiter metrics</li>
+            <li><b>/actuator/retries</b> - Retry statistics</li>
+            <li><b>/actuator/metrics</b> - Detailed resilience metrics</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+  <script>
+    function toggleSection(header) {
+      const content = header.nextElementSibling;
+      const arrow = header.querySelector('.expand-arrow');
+      
+      if (content.classList.contains('active')) {
+        content.classList.remove('active');
+        arrow.style.transform = 'rotate(0deg)';
+      } else {
+        content.classList.add('active');
+        arrow.style.transform = 'rotate(180deg)';
+      }
+    }
+
+    function copyCommand(button) {
+      const commandBlock = button.closest('.command-block');
+      const codeElement = commandBlock.querySelector('.command-code');
+      const text = codeElement.textContent;
+      
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = button.textContent;
+        button.textContent = '✓ COPIED';
+        button.style.background = 'var(--terminal-green)';
+        button.style.color = 'var(--terminal-bg)';
+        
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.style.background = 'none';
+          button.style.color = 'var(--terminal-green)';
+        }, 2000);
+      }).catch(() => {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        
+        const originalText = button.textContent;
+        button.textContent = '✓ COPIED';
+        button.style.background = 'var(--terminal-green)';
+        button.style.color = 'var(--terminal-bg)';
+        
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.style.background = 'none';
+          button.style.color = 'var(--terminal-green)';
+        }, 2000);
+      });
+    }
+
+    function copyCode(button) {
+      const pre = button.closest('pre');
+      const code = pre.querySelector('code');
+      const text = code.textContent;
+      
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = button.innerHTML;
+        button.innerHTML = `
+          <svg class="copy-icon" viewBox="0 0 16 16">
+            <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+          </svg>
+          Copied!
+        `;
+        button.classList.add('copied');
+        
+        setTimeout(() => {
+          button.innerHTML = originalText;
+          button.classList.remove('copied');
+        }, 2000);
+      }).catch(() => {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        
+        const originalText = button.innerHTML;
+        button.innerHTML = `
+          <svg class="copy-icon" viewBox="0 0 16 16">
+            <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+          </svg>
+          Copied!
+        `;
+        button.classList.add('copied');
+        
+        setTimeout(() => {
+          button.innerHTML = originalText;
+          button.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    // Remove all old function references that don't exist anymore
+    document.addEventListener('DOMContentLoaded', () => {
+      const firstSection = document.querySelector('.command-section .section-header');
+      if (firstSection) {
+        toggleSection(firstSection);
+      }
+      
+      // Add copy buttons to all pre elements (for backward compatibility)
+      const preElements = document.querySelectorAll('pre:not(.command-code)');
+      preElements.forEach(pre => {
+        if (!pre.querySelector('.copy-button')) {
+          const copyButton = document.createElement('button');
+          copyButton.className = 'copy-button';
+          copyButton.innerHTML = `
+            <svg class="copy-icon" viewBox="0 0 16 16">
+              <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+              <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+            </svg>
+            Copy
+          `;
+          copyButton.onclick = () => copyCode(copyButton);
+          pre.appendChild(copyButton);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
