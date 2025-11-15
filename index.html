@@ -4,6 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="google-adsense-account" content="ca-pub-4463473248133871">
+  <meta name="description" content="Spring Boot Properties Terminal — a concise, practical reference for Spring Boot microservice configuration (Eureka, Config Server, Gateway, JWT, RabbitMQ, DBs, Resilience4j, etc.).">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://binodsubedi.me/">
+<!-- Preconnect + Google font for consistent rendering -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Publisher id meta (kept) -->
+  <meta name="google-adsense-account" content="ca-pub-4463473248133871">
+
   <title>Spring Boot Properties Terminal — Complete Reference</title>
   <style>
     :root {
@@ -543,6 +552,24 @@
       }
     }
   </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Spring Boot Properties Terminal",
+    "url": "https://binodsubedi.me/",
+    "sameAs": [],
+    "contactPoint": [{
+      "@type": "ContactPoint",
+      "contactType": "customer support",
+      "email": "mailto:you@yourdomain.com"
+    }],
+    "memberOf": {
+      "@type": "ProgramMembership",
+      "hostingService": "Self-hosted"
+    }
+  }
+  </script>
 </head>
 <body>
   <header>
@@ -551,9 +578,12 @@
         <span class="prompt-symbol">$</span>
         <span class="terminal-title">Spring Boot Properties </span>
       </div>
-      <nav class="nav-terminal">
-        <a href="docker.html" class="terminal-btn">🐳 Docker Guide</a>
-      </nav>
+      <nav class="nav-terminal" aria-label="Main navigation">
+      <a href="docker.html" class="terminal-btn">🐳 Docker Guide</a>
+      <a href="about.html" class="terminal-btn">ℹ️ About</a>
+      <a href="contact.html" class="terminal-btn">✉️ Contact</a>
+      <a href="privacy.html" class="terminal-btn">🔒 Privacy</a>
+    </nav>
     </div>
   </header>
   <main>
@@ -1842,6 +1872,18 @@ public class GeminiService {
 
     </div>
   </main>
+   <!-- New footer for transparency & quick links -->
+  <footer style="max-width:1200px;margin:40px auto;color:var(--terminal-text);padding:20px 20px;opacity:0.9;text-align:center;">
+    <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
+      <div style="font-weight:600;color:var(--terminal-blue);">Spring Boot Properties Terminal</div>
+      <div style="font-size:13px;">
+        <a href="about.html" style="color:var(--terminal-green);margin-right:12px;text-decoration:none;">About</a>
+        <a href="contact.html" style="color:var(--terminal-green);margin-right:12px;text-decoration:none;">Contact</a>
+        <a href="privacy.html" style="color:var(--terminal-green);text-decoration:none;">Privacy</a>
+      </div>
+      <small style="margin-top:8px;color:var(--terminal-border);">Hosted by binodsubedi.me • Publisher ID: pub-4463473248133871</small>
+    </div>
+  </footer>
   <script>
     function toggleSection(header) {
       const content = header.nextElementSibling;
